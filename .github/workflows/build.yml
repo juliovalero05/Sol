@@ -9,29 +9,28 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Nuke and accept all licenses for ALL SDKs
+      - name: Prepare SDKs and licenses
         run: |
-          rm -rf $ANDROID_HOME/build-tools/37* || true
-          rm -rf $ANDROID_SDK_ROOT/build-tools/37* || true
-          rm -rf /usr/local/lib/android/sdk/build-tools/37* || true
-          mkdir -p $HOME/.android $HOME/.buildozer/android/platform/android-sdk/licenses
+          rm -rf $ANDROID_HOME/build-tools/37* $ANDROID_SDK_ROOT/build-tools/37* /usr/local/lib/android/sdk/build-tools/37* || true
+          mkdir -p $HOME/.android $HOME/.buildozer/android/platform/android-sdk/licenses $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
           echo '### User Sources for Android SDK Manager' > $HOME/.android/repositories.cfg
           mkdir -p $ANDROID_SDK_ROOT/licenses $ANDROID_HOME/licenses
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/.android/licenses/android-sdk-license 2>/dev/null || echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/.android/android-sdk-license
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          for dir in $ANDROID_SDK_ROOT/licenses $ANDROID_HOME/licenses $HOME/.buildozer/android/platform/android-sdk/licenses; do
+            echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $dir/android-sdk-license
+            echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $dir/android-sdk-license
+            echo "24333f8a63b6825ea9c5514f83c1059b8ea4b2e" >> $dir/android-sdk-license
+          done
+          cp -r $ANDROID_SDK_ROOT/cmdline-tools/latest/* $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ || true
+          cp -r $ANDROID_SDK_ROOT/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/ || true
           yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.1" "platform-tools" || true
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk zip unzip libffi-dev libssl-dev
           pip install --upgrade pip
-          pip install Cython==0.29.36 buildozer
+          pip install Cython==0.29.36 buildozer==1.5.0
 
       - name: Build APK
         run: buildozer android debug
