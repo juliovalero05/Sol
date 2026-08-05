@@ -2,7 +2,8 @@
 title = Sol
 package.name = sol
 package.domain = com.juliovalero.sol
-source.dir =./Sol
+source.dir =.
+source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
 requirements = python3,kivy,Pillow,plyer,requests,android
 orientation = portrait
@@ -16,4 +17,4 @@ android.archs = arm64-v8a, armeabi-v7a
 p4a.branch = master
 
 [buildozer]
-log_level = 1
+log_level = 2
