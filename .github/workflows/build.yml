@@ -9,9 +9,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Delete broken build-tools 37
+      - name: Fix SDK
         run: |
           rm -rf /usr/local/lib/android/sdk/build-tools/37* || true
+          mkdir -p /usr/local/lib/android/sdk/tools/bin
+          ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /usr/local/lib/android/sdk/tools/bin/sdkmanager || true
           mkdir -p $HOME/.android
           echo '### User Sources for Android SDK Manager' > $HOME/.android/repositories.cfg
 
