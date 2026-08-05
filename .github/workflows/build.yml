@@ -1,33 +1,24 @@
 name: Build APK
-on: push
+on: [push]
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      - name: Fix SDK 37 and sdkmanager
+      - name: Fix SDK
         run: |
-          rm -rf /usr/local/lib/android/sdk/build-tools/37* $HOME/.buildozer || true
-          mkdir -p $HOME/.android $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
-          echo '### User Sources for Android SDK Manager' > $HOME/.android/repositories.cfg
-          cp -r /usr/local/lib/android/sdk/cmdline-tools/latest/* $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ 2>/dev/null || true
-          mkdir -p /usr/local/lib/android/sdk/tools/bin $HOME/.buildozer/android/platform/android-sdk/tools/bin
-          ln -sf /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /usr/local/lib/android/sdk/tools/bin/sdkmanager || true
-          ln -sf $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager || true
-
+          SDK="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDK --install "build-tools;33.0.2" "platforms;android-33" > /dev/null
+          echo "y" | $SDK "build-tools;33.0.2" > /dev/null || true
       - name: Install deps
         run: |
-          sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk zip unzip libffi-dev libssl-dev
-          pip install Cython==0.29.36 buildozer==1.5.0
-
+          pip install buildozer cython
+          sudo apt-get update && sudo apt-get install -y libffi-dev libssl-dev
       - name: Build
-        run: buildozer android debug
-
+        run: buildozer android debug --verbose
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
