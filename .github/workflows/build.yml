@@ -13,18 +13,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk zip unzip
           pip install --upgrade pip
-          pip install cython==0.29.36 buildozer
-          pip install --upgrade git+https://github.com/kivy/python-for-android.git
+          pip install Cython==0.29.36 buildozer
       - name: Build APK
-        run: |
-          # Primero descarga el SDK (va a fallar pero lo descarga)
-          yes | buildozer android debug || true
-          # Acepta todas las licencias
-          SDK="$HOME/.buildozer/android/platform/android-sdk"
-          echo "y" | $SDK/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          echo "y" | $SDK/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.3" "platforms;android-33" || true
-          # Ahora sí compila de verdad
-          buildozer android debug
+        run: buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
