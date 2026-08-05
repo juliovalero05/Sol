@@ -1,42 +1,20 @@
-name: Build APK
-on: push
-jobs:
-  build:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+[app]
+title = Sol
+package.name = sol
+package.domain = com.juliovalero.sol
+source.dir =.
+source.include_exts = py,png,jpg,kv,atlas
+version = 1.0
+requirements = python3,kivy==2.3.0,Pillow,plyer,requests,android
+orientation = portrait
+android.permissions = INTERNET,CAMERA,RECORD_AUDIO
+android.api = 33
+android.sdk_path = /usr/local/lib/android/sdk
+android.minapi = 21
+android.ndk = 25b
+android.accept_sdk_license_agreements = True
+android.archs = arm64-v8a, armeabi-v7a
+p4a.branch = master
 
-      - name: Prepare SDKs and licenses
-        run: |
-          rm -rf $ANDROID_HOME/build-tools/37* $ANDROID_SDK_ROOT/build-tools/37* /usr/local/lib/android/sdk/build-tools/37* || true
-          mkdir -p $HOME/.android $HOME/.buildozer/android/platform/android-sdk/licenses $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
-          echo '### User Sources for Android SDK Manager' > $HOME/.android/repositories.cfg
-          mkdir -p $ANDROID_SDK_ROOT/licenses $ANDROID_HOME/licenses
-          for dir in $ANDROID_SDK_ROOT/licenses $ANDROID_HOME/licenses $HOME/.buildozer/android/platform/android-sdk/licenses; do
-            echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $dir/android-sdk-license
-            echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $dir/android-sdk-license
-            echo "24333f8a63b6825ea9c5514f83c1059b8ea4b2e" >> $dir/android-sdk-license
-          done
-          cp -r $ANDROID_SDK_ROOT/cmdline-tools/latest/* $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ || true
-          cp -r $ANDROID_SDK_ROOT/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/ || true
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.1" "platform-tools" || true
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk zip unzip libffi-dev libssl-dev
-          pip install --upgrade pip
-          pip install Cython==0.29.36 buildozer==1.5.0
-
-      - name: Build APK
-        run: buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sol-APK
-          path: bin/*.apk
+[buildozer]
+log_level = 2
