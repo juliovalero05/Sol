@@ -5,7 +5,7 @@ package.domain = com.juliovalero.sol
 source.dir =.
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
-requirements = python3,kivy,Pillow,plyer,requests,android
+requirements = python3,kivy==2.3.0,Pillow,plyer,requests,android
 orientation = portrait
 android.permissions = INTERNET,CAMERA,RECORD_AUDIO
 android.api = 33
