@@ -14,6 +14,10 @@ jobs:
           sudo apt-get install -y openjdk-17-jdk zip unzip
           pip install --upgrade pip
           pip install Cython==0.29.36 buildozer
+      - name: Accept Android licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.1" "platforms;android-33" "ndk;25b"
       - name: Build APK
         run: buildozer android debug
       - name: Upload APK
