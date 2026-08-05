@@ -17,6 +17,13 @@ jobs:
           pip install --upgrade git+https://github.com/kivy/python-for-android.git
       - name: Build APK
         run: |
+          # Primero descarga el SDK (va a fallar pero lo descarga)
+          yes | buildozer android debug || true
+          # Acepta todas las licencias
+          SDK="$HOME/.buildozer/android/platform/android-sdk"
+          echo "y" | $SDK/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          echo "y" | $SDK/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.3" "platforms;android-33" || true
+          # Ahora sí compila de verdad
           buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
