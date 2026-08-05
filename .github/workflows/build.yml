@@ -8,44 +8,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Fix SDK License
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libffi-dev libssl-dev openjdk-17-jdk unzip
+          pip install buildozer cython
+      - name: Accept licenses
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platform-tools"
-      - name: Install deps
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;34.0.0" "platforms;android-33" "platform-tools"
+      - name: Build APK
         run: |
-          pip install buildozer cython
-          sudo apt-get update && sudo apt-get install -y libffi-dev libssl-dev
-      - name: Build
-        run: buildozer android debug --verbose
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sol-APK
-          path: bin/*.apk
-name: Build APK
-on: [push]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Install deps
-        run: |
-          pip install buildozer cython
-          sudo apt-get update && sudo apt-get install -y libffi-dev libssl-dev
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platform-tools"
-      - name: Build
-        run: |
-          buildozer android debug || true
-          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;37.0.0" || true
           buildozer android debug --verbose
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Sol-APK
