@@ -1,5 +1,5 @@
 name: Build APK
-on: [push]
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,14 +10,15 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip openjdk-17-jdk zip unzip
           pip install --upgrade pip
-          pip install buildozer cython
+          pip install buildozer cython==0.29.36
+          sudo apt update
+          sudo apt install -y openjdk-17-jdk unzip
       - name: Build APK
         run: |
           buildozer -v android debug
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: JARVIS-APK
-          path: ./bin/*.apk
+          name: Sol-APK
+          path: bin/*.apk
