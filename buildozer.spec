@@ -1,31 +1,20 @@
-name: Build APK
-on: push
-jobs:
-  build:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+[app]
+title = Sol
+package.name = sol
+package.domain = com.juliovalero.sol
+source.dir =.
+source.include_exts = py,png,jpg,kv,atlas
+version = 1.0
+requirements = python3,kivy==2.3.0,Pillow,plyer,requests,android
+orientation = portrait
+android.permissions = INTERNET,CAMERA,RECORD_AUDIO
+android.api = 33
+android.minapi = 21
+android.ndk = 25b
+android.sdk_path = /usr/local/lib/android/sdk
+android.accept_sdk_license_agreements = True
+android.archs = arm64-v8a, armeabi-v7a
+p4a.branch = master
 
-      - name: Delete broken build-tools 37
-        run: |
-          rm -rf /usr/local/lib/android/sdk/build-tools/37* || true
-          mkdir -p $HOME/.android
-          echo '### User Sources for Android SDK Manager' > $HOME/.android/repositories.cfg
-
-      - name: Install deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk zip unzip libffi-dev libssl-dev
-          pip install Cython==0.29.36 buildozer==1.5.0
-
-      - name: Build
-        run: buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sol-APK
-          path: bin/*.apk
+[buildozer]
+log_level = 2
