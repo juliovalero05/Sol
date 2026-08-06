@@ -9,33 +9,21 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Force Accept Licenses
-        run: |
-          echo "sdk root $ANDROID_HOME"
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;37.0.0" "build-tools;33.0.2" "platforms;android-33" "platform-tools" || true
-          # Crear licencias a mano en todos lados donde buildozer las busca
-          for dir in "$ANDROID_HOME/licenses" "$HOME/.android/licenses" "$HOME/.buildozer/android/platform/android-sdk/licenses" "/usr/local/lib/android/sdk/licenses"; do
-            mkdir -p "$dir"
-            echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$dir/android-sdk-license"
-            echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> "$dir/android-sdk-license"
-            echo "24333f8a63b6825ea1c5514f9429b448a8b4000f" >> "$dir/android-sdk-license"
-            echo "d975f751698a77b662f1254ddbeed3901e976f5a" > "$dir/android-sdk-preview-license"
-            echo "y" > "$dir/android-googletv-license"
-            echo "y" > "$dir/android-sdk-preview-license"
-            echo "y" > "$dir/google-gdk-license"
-            echo "y" > "$dir/mips-android-sysimage-license"
-          done
-
-      - name: Install deps
+      - name: Install Buildozer Master
         run: |
           sudo apt-get update
           sudo apt-get install -y libffi-dev libssl-dev openjdk-17-jdk autoconf automake libtool libltdl-dev pkg-config zlib1g-dev
-          pip install buildozer cython
+          pip install --upgrade pip
+          pip install https://github.com/kivy/buildozer/archive/master.zip
+          pip install cython
+
+      - name: Accept licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "platforms;android-33" "platform-tools" "ndk;25.2.9519653" || true
 
       - name: Build APK
-        run: |
-          buildozer android debug --verbose
+        run: buildozer android debug --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
