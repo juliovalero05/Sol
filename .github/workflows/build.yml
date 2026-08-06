@@ -2,7 +2,7 @@ name: Build APK
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -10,15 +10,14 @@ jobs:
           python-version: '3.10'
       - name: Install deps
         run: |
+          sudo apt-get update
+          sudo apt-get install -y libffi-dev libssl-dev openjdk-17-jdk autoconf automake libtool libltdl-dev pkg-config zlib1g-dev
           pip install buildozer cython
-          sudo apt-get update && sudo apt-get install -y libffi-dev libssl-dev openjdk-17-jdk
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platform-tools"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "platforms;android-33" "platform-tools"
       - name: Build APK
         run: |
-          echo "yes" | buildozer android debug || true
-          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" || true
+          rm -rf.buildozer
           buildozer android debug --verbose
       - name: Upload APK
         uses: actions/upload-artifact@v4
