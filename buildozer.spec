@@ -1,11 +1,11 @@
 [app]
 title = Sol
 package.name = sol
-package.domain = com.juliovalero.sol
+package.domain = com.juliovalero
 source.dir =.
-source.include_exts = py,png,jpg,kv,atlas,json
+source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
-requirements = python3,kivy,kivymd,requests
+requirements = python3,kivy,kivymd
 orientation = portrait
 
 [buildozer]
@@ -18,3 +18,5 @@ android.minapi = 21
 android.ndk = 25b
 android.accept_sdk_license_agreements = True
 android.permissions = INTERNET
+android.sdk_path = /usr/local/lib/android/sdk
+android.ndk_path = /usr/local/lib/android/sdk/ndk/25.2.9519653
