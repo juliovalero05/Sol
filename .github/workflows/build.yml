@@ -8,36 +8,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      - name: Setup SDK and Fix Buildozer paths
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platform-tools" "ndk;25.2.9519653" || true
-          # Parche 1: Licencias en TODAS las carpetas
-          for d in "$ANDROID_HOME/licenses" "$HOME/.android/licenses" "$HOME/.buildozer/android/platform/android-sdk/licenses"; do
-            mkdir -p "$d"
-            echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$d/android-sdk-license"
-            echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> "$d/android-sdk-license"
-            echo "24333f8a63b6825ea1c5514f9429b448a8b4000f" >> "$d/android-sdk-license"
-          done
-          # Parche 2: Crear el sdkmanager falso que busca buildozer viejo
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
-          ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-          # Parche 3: Que buildozer encuentre los build-tools
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk/build-tools
-          ln -sf $ANDROID_HOME/build-tools/33.0.2 $HOME/.buildozer/android/platform/android-sdk/build-tools/33.0.2 || true
-          ln -sf $ANDROID_HOME/build-tools/37.0.0 $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0 || true
-
-      - name: Install Buildozer Master
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libffi-dev libssl-dev openjdk-17-jdk autoconf automake libtool libltdl-dev pkg-config zlib1g-dev ant
+          sudo apt-get install -y openjdk-17-jdk libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev ant
           pip install --upgrade pip
-          pip install https://github.com/kivy/buildozer/archive/master.zip cython
-
-      - name: Build APK
-        run: buildozer android debug --verbose
-
+          pip install buildozer cython
+      - name: Setup Android SDK
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "platforms;android-33" "ndk;25.2.9519653"
+      - name: Build
+        run: buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
